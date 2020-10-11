@@ -1,0 +1,8 @@
+                                    Flash       RAM         EE          I/O
+PIC16F19196                 2,33    28K         2K          256         59
+PIC16F19197                 2,45    56K         4K          256         59
+
+ATmega2560                  11,85   256k        8K          4K          86
+ATmega169A                  2,37    16K         1K          512         
+
+PIC32MX420F032H-40I/PT      4,63    32K         8K                      51

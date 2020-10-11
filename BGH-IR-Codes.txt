@@ -1,0 +1,10 @@
+Códigos infra-rojos AC BGH
+
+Portadora 38.5 Khz
+Start 8.5 ms
+Pausa 4 ms
+40 bits de 0.5 ms separados 0.5 ms
+
+OFF:         BD EB FF DB D0
+ON FRIO 24:  BD FF EE DA AC
+ON FRIO 26:  BD FF ED 6D F0

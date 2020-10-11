@@ -1,0 +1,23 @@
+<!DOCTYPE piklab>
+<piklab>
+  <general>
+    <device>16F887</device>
+    <tool>gputils</tool>
+    <files>
+      <item>const.inc</item>
+      <item>eefunc.inc</item>
+      <item>fcn.inc</item>
+      <item>mio16x16ad.asm</item>
+      <item>page2.inc</item>
+      <item>page3.inc</item>
+      <item>txrx.inc</item>
+      <item>vars.inc</item>
+    </files>
+  </general>
+  <editors>
+    <bookmarks>
+      <item>file:///home/walter/Sources/Gnu-Monitor/gmhome/hardware/mio16x16ad/pgm/vars.inc,130</item>
+      <item>file:///home/walter/Sources/Gnu-Monitor/gmhome/hardware/mio16x16ad/pgm/page2.inc,1323,1273</item>
+    </bookmarks>
+  </editors>
+</piklab>

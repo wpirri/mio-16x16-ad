@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+#PIC=16f877
+PIC=16f877a
+#PIC=16f887
+
+all: mio16x16ad-compile mio16x16ad-link
+
+prog: program
+
+mio16x16ad-compile:
+	gpasm -c -I./ -p$(PIC) -w0 mio16x16ad.asm
+
+mio16x16ad-link:
+	gplink -omio16x16ad.hex -c -ainhx32 -m -I./ mio16x16ad.o
+	echo "Compilado para $(PIC)"
+
+clean:
+	rm -f mio16x16ad.hex mio16x16ad.o mio16x16ad.lst mio16x16ad.map mio16x16ad.err mio16x16ad.cof mio16x16ad.lst mio16x16ad.cod
+
+program:
+	pk2cmd -PPIC$(PIC) -Fmio16x16ad.hex -M -J -B/usr/local/pk2
+

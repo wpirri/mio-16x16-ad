@@ -1,0 +1,5 @@
+1.- Agrandar perforaciones de 1N4001.
+2.- Alejar puente de Xtal.
+3.- Alejar led de power de led de status.
+4.- Alejar conector de teclado de Xtal.
+5.- Separar puentes de abajo del uP, alejarlos del zócalo.

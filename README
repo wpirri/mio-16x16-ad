@@ -1,0 +1,317 @@
+README
+==============================================================================
+
+MIO-16x16/AD
+-------------------------------------------------------------------------------
+
+1  interface RS-232
+16 Bits salida TTL
+16 Bits entrada TTL
+5  Entradas analógicas (1 sens temp onboard)
+1  display i2c o paralelo (3er port salida)
+1  dirección serial configurable (3er port entrada)
+
+-------------------------------------------------------------------------------
+ PORT    BIT     PIN     I/O      FUNCION
+-------------------------------------------------------------------------------
+                 1                RESET
+                 11               Vdd
+                 12               Vss
+                 13               XT
+                 14               XT
+                 31               Vss
+                 32               Vdd
+ A       0       2       I        A/D 1
+ A       1       3       I        A/D 2
+ A       2       4       I        A/D 3
+ A       3       5       I        A/D 4
+ A       4       6       I/O      Dig 1
+ A       5       7       I        I2C/SPI - SS
+ A       6       -       -        -
+ A       7       -       -        -
+ B       0       33      I        INT
+ B       1       34      O        DISPLAY EN
+ B       2       35      O        DISPLAY RS
+ B       3       36      O        DISPLAY RW
+ B       4       37      O        -ENAB I1
+ B       5       38      O        ENAB O2
+ B       6       39      O        ENAB O1
+ B       7       40      O        -ENAB I2
+ C       0       15      ?        PWM CK
+ C       1       16      ?        PWM 2
+ C       2       17      ?        PWM 1
+ C       3       18      I/O      I2C/SPI - SCK/SCL
+ C       4       23      I/O      I2C/SPI - SDI/SDA
+ C       5       24      O        I2C/SPI - SDO
+ C       6       25      O        SERIAL - TX
+ C       7       26      I        SERIAL - RX
+ D       0       19      I/O      BUS DATA 0
+ D       1       20      I/O      BUS DATA 1
+ D       2       21      I/O      BUS DATA 2
+ D       3       22      I/O      BUS DATA 3
+ D       4       27      I/O      BUS DATA 4
+ D       5       28      I/O      BUS DATA 5
+ D       6       29      I/O      BUS DATA 6
+ D       7       30      I/O      BUS DATA 7
+ E       0       8       O        STATUS LED
+ E       1       9       O        BUZZER
+ E       2       10      O        -ENAB BTN
+-------------------------------------------------------------------------------
+
+
+COMANDOS
+========
+
+Requerimientos originados en HOST (HST)
+---------------------------------------------------------------------------------------------------------------
+rxtyp       -------|
+rxdst       -------|------|
+rxsrc       -------|------|----|
+rxcnt       -------|------|----|------|
+rxfcn       -------|------|----|------|----|
+rxdat1      -------|------|----|------|----|-----|
+rxdat2      -------|------|----|------|----|-----|-----|
+rxdat3      -------|------|----|------|----|-----|-----|-----|
+rxdat4      -------|------|----|------|----|-----|-----|-----|-----|
+rxdat5      -------|------|----|------|----|-----|-----|-----|-----|-----|
+rxdat6      -------|------|----|------|----|-----|-----|-----|-----|-----|-----|
+rxdat7      -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|
+rxdat8      -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|-----|
+rxdat9      -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+rxdat10     -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+rxchksum    -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+                   |      |    |      |    |     |     |     |     |     |     |     |     |     |     |     |
+                   v      v    v      v    v     v     v     v     v     v     v     v     v     v     v     v
+  '2': Modifica el estado de la salida '1'..'6' con  dato
+  HST  >>         'Q'  (dst) (src)  (cnt) '2'  (sal) (dato)  x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '2'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '2'    n     x     x     x     x     x     x     x     x     x    SUM
+
+  '3': Modifica el estado de la salida '1'/'2' en el bit '0'..'7'
+       con el dato encendiendo o apagando ('0'/'1')
+  HST  >>         'Q'  (dst) (src)  (cnt) '3'  (sal) (bit) (dato)  x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '3'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '3'    n     x     x     x     x     x     x     x     x     x    SUM
+  '4': Envia codigo para el puerto infra-rojo
+  HST  >>         'Q'  (dst) (src)  (cnt) '4'    C     C     C     C     C     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '4'   '0'    x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '4'    n     x     x     x     x     x     x     x     x     x    SUM
+  '5': Pulso en el bit '0' .. '7' de la salida '1' / '2'
+  HST  >>         'Q'  (dst) (src)  (cnt) '5'  (sal) (bit) (tim)   x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '5'   '0'    x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '5'    n     x     x     x     x     x     x     x     x     x    SUM
+
+        tim: timer del pulso en segundos
+
+  '6': Pide datos de entrada completa '1'/'2'
+  HST  >>         'Q'  (dst) (src)  (cnt) '6'  (ent)   x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '6'  (ent) (dato)(noti)(seg)   x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '6'    n     x     x     x     x     x     x     x     x     x    SUM
+  '7': Pide datos de salida completa '1'/'2'
+  HST  >>         'Q'  (dst) (src)  (cnt) '7'  (sal)   x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '7'  (sal) (dato)(noti)(seg) (sega)  x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '7'    n     x     x     x     x     x     x     x     x     x    SUM
+  '8': Pide datos de entrada analogica '1'/'2'/'3'/'4'
+  HST  >>         'Q'  (dst) (src)  (cnt) '8'  (ent)   x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '8'  (ent)  (H)   (L)  (maxh)(maxl)(minh)(minl)(alrm)(noti)(sega) SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '8'    n     x     x     x     x     x     x     x     x     x    SUM
+  'P': Mensaje de presentación (de HOST a periférico)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'P'    0     0     0     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'P'  (d01) (d02) (d03) (d04) (d05)   x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'P'    x     x     x     x     x     x     x     x     x     x    SUM
+
+       d01: Tipo de periférico         (0x01: mio16x16, 0x02: mio16x16/ad)
+       d02: Version de hard            (Ej. 0x01)
+       d03: Version de soft            (Ej. 0x01)
+       d04: Modelo de microprocesador  (0x01 - 16F877, 0x02 - 16F877A, 0x03 - 16F887, 0x04 - 16F628, 0x05 - 16F628A)
+       d05: Presencia de display       ('0' - No, '1' - Si, ' ' - Info no disponible)
+
+  'L': Mensaje de cambio de dirección local
+  HST  >>         'Q'  (dst) (src)  (cnt) 'L'  (addr)  x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'L'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'L'    n     x     x     x     x     x     x     x     x     x    SUM
+
+  'T': Mensaje de cambio de hora
+  HST  >>         'Q'  (dst) (src)  (cnt) 'T'  (hora)(min) (seg) (dia)(fecha)(mes)(anio)   x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'T'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'T'    n     x     x     x     x     x     x     x     x     x    SUM
+
+    (hora)  - 0..23
+    (min)   - 0..59
+    (seg)   - 0..59
+    (dia)   - 0..6  (Lunes .. Domingo)
+    (fecha) - 1..31
+    (mes)   - 0..11 (Enero .. Diciembre)
+    (anio)  - 0..255
+
+  'I': Invierte el bit '0' .. '7' de la salida '1' / '2'
+  HST  >>         'Q'  (dst) (src)  (cnt) 'I'  (sal) (bit)   x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'I'   '0'    x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'I'    n     x     x     x     x     x     x     x     x     x    SUM
+
+  'R': Reset del dispositivo
+  HST  >>         'Q'  (dst) (src)  (cnt) 'R'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'R'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'R'    n     x     x     x     x     x     x     x     x     x    SUM
+
+  'B': Set Baudrate
+  HST  >>         'Q'  (dst) (src)  (cnt) 'B'  (baud)  x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'B'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'B'    n     x     x     x     x     x     x     x     x     x    SUM
+
+        baud:   0xBF =  1200 bps
+                0x5F =  2400 bps
+                0x17 =  9600 bps
+                0x0B = 19200 bps
+
+  'F': Configuracion de seguidores
+  HST  >>         'Q'  (dst) (src)  (cnt) 'F'  (ent) (masc)  x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'F'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'F'    n     x     x     x     x     x     x     x     x     x    SUM
+
+        ent:  1 - Entrada 1
+              2 - Entrada 2
+              A - Entrada analogica
+        masc: mascara de bits para el seguimiento
+
+  'O': Configuracion de mascara de notificacion
+  HST  >>         'Q'  (dst) (src)  (cnt) 'O' (port) (masc)  x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'O'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'O'    n     x     x     x     x     x     x     x     x     x    SUM
+
+        ent:  1 - Entrada 1
+              2 - Entrada 2
+              3 - Salida 1
+              4 - Salida 2
+              A - Entrada analogica
+        masc: mascara de bits para el seguimiento
+
+  'A': Configuración de alarmas de entradas analógicas
+  HST  >>         'Q'  (dst) (src)  (cnt) 'A'  (ent) (maxh)(maxl)(min)   x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'A'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'A'    n     x     x     x     x     x     x     x     x     x    SUM
+
+  'C': Solicita emitir npit ('1' a '9' o '0' para un beep largo) pitidos por el buzzer de la placa    (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'C'  (npit)  x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'C'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'C'    n     n     x     x     x     x     x     x     x     x    SUM
+  'D': Escribe los diez primeros caracteres de la primer linea del display   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'D'  (ch0) (ch1) (ch2) (ch3) (ch4) (ch5) (ch6) (ch7) (ch8) (ch9)  SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'D'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'D'    n     n     x     x     x     x     x     x     x     x    SUM
+  'E': Escribe los segundos diez caracteres de la primer linea del display   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'E'  (ch0) (ch1) (ch2) (ch3) (ch4) (ch5) (ch6) (ch7) (ch8) (ch9)  SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'E'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'E'    n     n     x     x     x     x     x     x     x     x    SUM
+  'G': Escribe los diez primeros caracteres de la segunda linea del display   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'G'  (ch0) (ch1) (ch2) (ch3) (ch4) (ch5) (ch6) (ch7) (ch8) (ch9)  SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'G'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'G'    n     n     x     x     x     x     x     x     x     x    SUM
+  'H': Escribe los segundos diez caracteres de la segunda linea del display   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'H'  (ch0) (ch1) (ch2) (ch3) (ch4) (ch5) (ch6) (ch7) (ch8) (ch9)  SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'H'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'H'    n     n     x     x     x     x     x     x     x     x    SUM
+  'J': Escribe los diez primeros caracteres de la tercer linea del display   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'J'  (ch0) (ch1) (ch2) (ch3) (ch4) (ch5) (ch6) (ch7) (ch8) (ch9)  SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'J'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'J'    n     n     x     x     x     x     x     x     x     x    SUM
+  'K': Escribe los segundos diez caracteres de la tercer linea del display   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'K'  (ch0) (ch1) (ch2) (ch3) (ch4) (ch5) (ch6) (ch7) (ch8) (ch9)  SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'K'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'K'    n     n     x     x     x     x     x     x     x     x    SUM
+  'M': Escribe los diez primeros caracteres de la cuarta linea del display   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'M'  (ch0) (ch1) (ch2) (ch3) (ch4) (ch5) (ch6) (ch7) (ch8) (ch9)  SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'M'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'M'    n     n     x     x     x     x     x     x     x     x    SUM
+  'N': Escribe los segundos diez caracteres de la cuarta linea del display   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) 'N'  (ch0) (ch1) (ch2) (ch3) (ch4) (ch5) (ch6) (ch7) (ch8) (ch9)  SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'N'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'N'    n     n     x     x     x     x     x     x     x     x    SUM
+  'Q': Configuracion del Display
+  HST  >>         'Q'  (dst) (src)  (cnt) 'Q'  (enh) (typ) (dfl)  (to)   x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) 'Q'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) 'Q'    n     x     x     x     x     x     x     x     x     x    SUM
+
+                  (enh) enable display '0' / '1'
+                  (typ) tipo de display
+                  (def) pantalla por defecto
+                  (to)  time out para ir a pantalla por defecto
+
+Requerimientos originados en Perifericos (HWR)
+---------------------------------------------------------------------------------------------------------------
+txtyp       -------|
+txdst       -------|------|
+txsrc       -------|------|----|
+txcnt       -------|------|----|------|
+txfcn       -------|------|----|------|----|
+txdat1      -------|------|----|------|----|-----|
+txdat2      -------|------|----|------|----|-----|-----|
+txdat3      -------|------|----|------|----|-----|-----|-----|
+txdat4      -------|------|----|------|----|-----|-----|-----|-----|
+txdat5      -------|------|----|------|----|-----|-----|-----|-----|-----|
+txdat6      -------|------|----|------|----|-----|-----|-----|-----|-----|-----|
+txdat7      -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|
+txdat8      -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|-----|
+txdat9      -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+txdat10     -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+txchksum    -------|------|----|------|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+                   |      |    |      |    |     |     |     |     |     |     |     |     |     |     |     |
+                   v      v    v      v    v     v     v     v     v     v     v     v     v     v     v     v
+  'P': Mensaje de presentaci�n (de perif�rico a HOST)
+  HWR  >>         'Q'  (dst) (src)  (cnt) 'P'  (d01) (d02) (d03) (d04) (d05)   x     x     x     x     x    SUM
+  HST  << Ok      'R'  (dst) (src)  (cnt) 'P'    0     0     0     x     x     x     x     x     x     x    SUM
+  HST  << Err     'E'  (dst) (src)  (cnt) 'P'    x     x     x     x     x     x     x     x     x     x    SUM
+
+       d01: Tipo de periférico         (0x01: mio16x16, 0x02: mio16x16/ad)
+       d02: Version de hard            (Ej. 0x01)
+       d03: Version de soft            (Ej. 0x01)
+       d04: Modelo de microprocesador  (0x01 - 16F877, 0x02 - 16F877A, 0x03, 16F887)
+       d05: Presencia de display       ('0' - No, '1' - Si, ' ' - Info no disponible)
+
+  '6': Informa cambio de estado de entrada completa '1'/'2'
+  HWR  >>         'Q'  (dst) (src)  (cnt) '6'  (ent) (dato)(noti)(seg)   x     x     x     x     x     x    SUM
+  HST  << Ok      'R'  (dst) (src)  (cnt) '6'  (ent) (dato)  x     x     x     x     x     x     x     x    SUM
+  HST  << Err     'E'  (dst) (src)  (cnt) '6'    n     x     x     x     x     x     x     x     x     x    SUM
+
+  '7': Informa cambio de estado de salida completa '1'/'2'
+  HWR  >>         'Q'  (dst) (src)  (cnt) '7'  (sal) (dato)(noti)(seg) (sega)  x     x     x     x     x    SUM
+  HST  << Ok      'R'  (dst) (src)  (cnt) '7'  (sal) (dato)  x     x     x     x     x     x     x     x    SUM
+  HST  << Err     'E'  (dst) (src)  (cnt) '7'    n     x     x     x     x     x     x     x     x     x    SUM
+
+  '9': Informa cambio de estado de entrada analogica
+  HWR  >>         'Q'  (dst) (src)  (cnt) '9'  (ent) (stat) (H)   (L)  (maxh)(maxl)(minh)(minl)(noti)(sega) SUM
+  HST  << Ok      'R'  (dst) (src)  (cnt) '9'  (ent) (stat)  x     x     x     x     x     x     x     x    SUM
+  HST  << Err     'E'  (dst) (src)  (cnt) '9'    n     x     x     x     x     x     x     x     x     x    SUM
+
+      stat: '0' (debajo del mínimo) / '1' (sobre el maximo)
+      H, L: Bytes de valor del conversor
+
+
+NOTAS:
+(1) No implementado en HW Version 0x01
+(2) No implementado en HW Tipo    0x01 y 0x02
+
+
+Direcciones
+-----------
+0x00          Dirección del HOST o Terminal inteligente.
+0x01 .. 0xFE  Direcciones de perifericos (0xFE periferico no configurado).
+0xFF          Dirección de broadcast de perifericos.
+
+
+===============================================================================================================
+ TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO - TODO 
+===============================================================================================================
+Requerimientos originados en HOST (HST)
+---------------------------------------------------------------------------------------------------------------
+  '0': Devolver dato de direccion de memoria (addr)                     (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) '1' (addr)   x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '1' (addr) (dato)  x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '1'    n     x     x     x     x     x     x     x     x     x    SUM
+  '1': Guarda configuracion en EEPROM                                   (nota 1)
+  HST  >>         'Q'  (dst) (src)  (cnt) '2'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Ok      'R'  (dst) (src)  (cnt) '2'    x     x     x     x     x     x     x     x     x     x    SUM
+  HWR  << Err     'E'  (dst) (src)  (cnt) '2'    n     x     x     x     x     x     x     x     x     x    SUM
+
+Requerimientos originados en Perifericos (HRW)
+---------------------------------------------------------------------------------------------------------------
